@@ -74,17 +74,6 @@ export class ProfilesService {
     }
 
     return this.repository.save(profile);
-
-    /*
-
-
-
-
-
-    const profile: Profiles = this.repository.create(profileData);
-
-    return this.repository.save(profile);
-    */
   }
 
   async delete(ids: string): Promise<{
