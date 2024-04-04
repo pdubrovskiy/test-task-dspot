@@ -1,5 +1,10 @@
 # Test-Task-Dspot
-
+## Technical Stack:
+* Node.js
+* Nest.js
+* TypeScript
+* PostgreSQL & TypeORM
+* Swagger
 ## For starting project:
 #### prod:
 <code>npm run build</code>
@@ -18,3 +23,5 @@
 <code>http:/localhost:4000/api/v1/docs</code>(dev)
 
 <code>http:/localhost:5000/api/v1/docs</code>(local)
+
+#### ! Env files specially added to the repo (you just need to set your own PostgresDB)
