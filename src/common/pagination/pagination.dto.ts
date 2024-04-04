@@ -5,13 +5,13 @@ import { IsInt, IsOptional, Min } from 'class-validator';
 export class PaginationDto {
   @ApiPropertyOptional({
     required: false,
-    title: 'perPage',
+    title: 'per_page',
   })
   @Type(() => Number)
   @IsInt()
   @Min(-1)
   @IsOptional()
-  perPage: number = 20;
+  per_page: number = 20;
 
   @ApiPropertyOptional({
     required: false,

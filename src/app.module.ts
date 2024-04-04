@@ -3,9 +3,9 @@ import { WinstonModule } from 'nest-winston';
 import { DatabaseModule } from './database/database.module';
 import { winstonConfig } from './config/winston.config';
 import { AppConfigModule } from './config/app-config.module';
-import { ProfilesModule } from './core/profiles/profiles.module';
+import { FriendsModule } from './core/friends/friends.module';
 
 @Module({
-  imports: [AppConfigModule, WinstonModule.forRoot(winstonConfig), DatabaseModule, ProfilesModule],
+  imports: [AppConfigModule, WinstonModule.forRoot(winstonConfig), DatabaseModule, FriendsModule],
 })
 export class AppModule {}

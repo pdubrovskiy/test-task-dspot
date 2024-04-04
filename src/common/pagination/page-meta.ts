@@ -1,30 +1,30 @@
-import { FindManyOptions } from 'typeorm';
+import { FindOptions } from 'typeorm';
 import { PageMetaParameters } from './page-meta.interface';
 
 export class PageMeta {
   constructor({ pageOptions, total }: PageMetaParameters) {
     this.total = total;
-    this.currentPage = pageOptions.page;
-    this.perPage = pageOptions.perPage;
-    this.lastPage = this.perPage === -1 ? 1 : Math.ceil(this.total / this.perPage);
-    this.from = this.calculateFrom(this.currentPage, this.lastPage, this.perPage);
-    this.to = this.calculateTo(this.from, this.perPage, this.total);
-    this.perPage * this.currentPage > this.total ? this.total : this.perPage * this.currentPage;
+    this.current_page = pageOptions.page;
+    this.per_page = pageOptions.perPage;
+    this.last_page = this.per_page === -1 ? 1 : Math.ceil(this.total / this.per_page);
+    this.from = this.calculateFrom(this.current_page, this.last_page, this.per_page);
+    this.to = this.calculateTo(this.from, this.per_page, this.total);
+    this.per_page * this.current_page > this.total ? this.total : this.per_page * this.current_page;
   }
 
   readonly total: number;
 
-  readonly currentPage: number = 1;
+  readonly current_page: number = 1;
 
-  readonly lastPage: number;
+  readonly last_page: number;
 
-  readonly perPage: number;
+  readonly per_page: number;
 
   readonly from: number;
 
   readonly to: number;
 
-  static generateFindOptions(perPage: number, page: number): FindManyOptions {
+  static generateFindOptions(perPage: number, page: number): FindOptions {
     const findOptions =
       perPage === -1
         ? {}
@@ -49,16 +49,16 @@ export class PageMeta {
     return pageMeta;
   }
 
-  private calculateFrom(currentPage: number, lastPage: number, perPage: number): number | null {
-    return currentPage <= lastPage ? perPage * (currentPage - 1) + 1 : null;
+  private calculateFrom(current_page: number, last_page: number, per_page: number): number | null {
+    return current_page <= last_page ? per_page * (current_page - 1) + 1 : null;
   }
 
-  private calculateTo(from: number | null, perPage: number, total: number): number | null {
-    if (perPage === -1) {
+  private calculateTo(from: number | null, per_page: number, total: number): number | null {
+    if (per_page === -1) {
       return total;
     }
     if (from) {
-      return from + perPage - 1 <= total ? from + perPage - 1 : total;
+      return from + per_page - 1 <= total ? from + per_page - 1 : total;
     }
     return null;
   }
