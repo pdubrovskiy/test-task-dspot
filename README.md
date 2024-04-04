@@ -5,6 +5,7 @@
 * TypeScript
 * PostgreSQL & TypeORM
 * Swagger
+
 ## For starting project:
 #### prod:
 <code>npm run build</code>
@@ -16,6 +17,11 @@
 
 #### local:
 <code>npm run start:local</code>
+
+## For using seeds:
+##### <code>npm run seed:prod</code>
+##### <code>npm run seed:dev</code>
+##### <code>npm run seed:local</code>
 
 ## Swagger links:
 <code>http:/localhost:3000/api/v1/docs</code>(prod)
