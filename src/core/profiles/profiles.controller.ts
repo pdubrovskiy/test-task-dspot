@@ -1,3 +1,4 @@
+import { ShortestPathDto } from './dto/shortest-path.dto';
 import {
   Controller,
   Get,
@@ -25,6 +26,8 @@ import { ExceptionMessages } from 'src/common/exceptions/exception-messages';
 import { ApiMessageResponse } from 'src/common/decorators/swagger-message.decorator';
 import { Responses } from 'src/common/response_messages/responses';
 import { Messages } from 'src/common/response_messages/messages';
+import { FindShortestConnection } from './dto/find-shortes-connection.dto';
+import { PageData } from 'src/common/pagination/page-data';
 
 @ApiTags('profiles')
 @Controller('profiles')
@@ -41,7 +44,7 @@ export class ProfilesController {
   )
   @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
   @Get()
-  getAll(@Query() getProfilesDto: GetProfilesDto) {
+  getAll(@Query() getProfilesDto: GetProfilesDto): Promise<PageData<Profiles>> {
     return this.profilesService.getAll(getProfilesDto);
   }
 
@@ -58,7 +61,7 @@ export class ProfilesController {
   @ApiErrorWrapper(Exceptions[ExceptionMessages.UNPROCESSABLE_ENTITY])
   @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
   @Post()
-  create(@Body() createProfileDto: CreateProfileDto) {
+  create(@Body() createProfileDto: CreateProfileDto): Promise<Profiles> {
     return this.profilesService.create(createProfileDto);
   }
 
@@ -71,8 +74,8 @@ export class ProfilesController {
   @ApiErrorWrapper(Exceptions[ExceptionMessages.NOT_FOUND])
   @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
   @Get(':id')
-  getOneById(@Param('id') id: string): Promise<Profiles> {
-    return this.profilesService.getOneById(+id);
+  getOneById(@Param('id', ParseIntPipe) id: number): Promise<Profiles> {
+    return this.profilesService.getOneById(id);
   }
 
   @ApiOperation({ summary: 'Update profile' })
@@ -81,7 +84,10 @@ export class ProfilesController {
   @ApiErrorWrapper(Exceptions[ExceptionMessages.UNPROCESSABLE_ENTITY])
   @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
   @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateProfileDto: UpdateProfileDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<Profiles> {
     return this.profilesService.update(id, updateProfileDto);
   }
 
@@ -91,7 +97,38 @@ export class ProfilesController {
   @ApiErrorWrapper(Exceptions[ExceptionMessages.UNPROCESSABLE_ENTITY])
   @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
   @Delete()
-  delete(@Body() deleteProfilesDto: DeleteProfilesDto) {
+  delete(@Body() deleteProfilesDto: DeleteProfilesDto): Promise<{
+    message: Messages;
+  }> {
     return this.profilesService.delete(deleteProfilesDto.ids);
+  }
+
+  @ApiOperation({ summary: 'Get all friends by profile ID' })
+  @ApiResponseWrapper(
+    {
+      withMeta: true,
+      options: { status: HttpStatus.OK, description: Messages.SUCCESS_MESSAGE },
+    },
+    ProfilesDto,
+  )
+  @ApiErrorWrapper(Exceptions[ExceptionMessages.NOT_FOUND])
+  @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
+  @Get('/friends/:id')
+  getAllFriends(@Param('id', ParseIntPipe) id: number): Promise<Profiles[]> {
+    return this.profilesService.getAllFriends(id);
+  }
+
+  @ApiOperation({ summary: 'Get shortest connection between friends' })
+  @ApiResponseWrapper(
+    {
+      options: { status: HttpStatus.OK, description: Messages.SUCCESS_MESSAGE },
+    },
+    ShortestPathDto,
+  )
+  @ApiErrorWrapper(Exceptions[ExceptionMessages.NOT_FOUND])
+  @ApiErrorWrapper(Exceptions[ExceptionMessages.ERROR_RESPONSE])
+  @Post('/friends/shortestConnection')
+  findShortestConnection(@Body() dto: FindShortestConnection): Promise<number[]> {
+    return this.profilesService.findShortestConnection(dto.profileId1, dto.profileId2);
   }
 }

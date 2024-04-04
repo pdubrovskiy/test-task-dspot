@@ -24,7 +24,10 @@ export class ProfilesService {
       dto.page,
     );
     const total = await this.repository.count(findOptions);
-    const profiles: Profiles[] = await this.repository.find(findOptions);
+    const profiles: Profiles[] = await this.repository.find({
+      ...findOptions,
+      relations: ['friends'],
+    });
 
     const pageMeta = PageMeta.generateMeta(total, dto.perPage, dto.page);
     const pageData = new PageData(profiles, pageMeta);
@@ -44,7 +47,7 @@ export class ProfilesService {
   }
 
   async getOneById(id: number): Promise<Profiles> {
-    const profile = await this.findOneByOption({ id }, { friends: true });
+    const profile = await this.findOneByOptions({ id }, { friends: true });
 
     if (!profile) {
       throw new LogicException(ExceptionMessages.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -53,15 +56,14 @@ export class ProfilesService {
     return profile;
   }
 
-  async update(id: number, dto: UpdateProfileDto): Promise<Profiles | undefined> {
-    const profile = await this.findOneByOption({ id }, { friends: true });
+  async update(id: number, dto: UpdateProfileDto): Promise<Profiles> {
+    const profile = await this.findOneByOptions({ id }, { friends: true });
     const { friendIds, ...profileData } = dto;
 
     if (!profile) {
       throw new LogicException(ExceptionMessages.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     await this.checkIfAllExist(friendIds);
-
     this.repository.merge(profile, profileData);
 
     if (Array.isArray(friendIds)) {
@@ -87,6 +89,50 @@ export class ProfilesService {
     return { message: Messages.SUCCESSFUL_OPERATION };
   }
 
+  async getAllFriends(id: number): Promise<Profiles[]> {
+    const profile = await this.findOneByOptions({ id }, { friends: true });
+
+    if (!profile) {
+      throw new LogicException(ExceptionMessages.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const { friends } = profile;
+
+    return friends;
+  }
+
+  async findShortestConnection(profileId1: number, profileId2: number): Promise<number[]> {
+    const profile1 = await this.findOneByOptions({ id: profileId1 }, { friends: true });
+    const profile2 = await this.findOneByOptions({ id: profileId2 }, { friends: true });
+
+    if (!profile1 || !profile2) {
+      throw new LogicException(ExceptionMessages.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const visited: Set<number> = new Set();
+    const queue: { profile: Profiles; path: number[] }[] = [];
+
+    visited.add(profile1.id);
+    queue.push({ profile: profile1, path: [profile1.id] });
+
+    while (queue.length > 0) {
+      const { profile, path } = queue.shift();
+      visited.add(profile.id);
+
+      if (profile.id === profileId2) {
+        return path;
+      }
+      const { friends } = await this.findOneByOptions({ id: profile.id }, { friends: true });
+
+      for (const friend of friends) {
+        if (!visited.has(friend.id)) {
+          queue.push({ profile: friend, path: [...path, friend.id] });
+        }
+      }
+    }
+
+    return null;
+  }
+
   private async checkIfAllExist(ids: number[] = []): Promise<void> {
     const profiles = await this.repository.find({ where: { id: In(ids) } });
     const existingIds = profiles.map((profile) => profile.id);
@@ -103,7 +149,7 @@ export class ProfilesService {
     }
   }
 
-  private async findOneByOption(
+  private async findOneByOptions(
     where: FindOptionsWhere<Profiles>,
     relations: FindOptionsRelations<Profiles> = {},
   ): Promise<Profiles> {
