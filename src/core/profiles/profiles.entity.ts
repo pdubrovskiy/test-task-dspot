@@ -1,7 +1,7 @@
 import { DateEntity } from 'src/database/date.entity';
 import { Entity, Column, JoinTable, ManyToMany } from 'typeorm';
 
-@Entity()
+@Entity('profiles')
 export class Profiles extends DateEntity {
   @Column()
   img: string;
