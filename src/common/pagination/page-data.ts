@@ -8,7 +8,7 @@ export class PageData<T> {
 
   content: T[];
 
-  readonly meta: PageMeta;
+  readonly meta: Partial<PageMeta>;
 }
 
 export class Page<T> {

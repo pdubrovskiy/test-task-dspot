@@ -12,8 +12,12 @@ async function bootstrap() {
   const logger: WinstonLogger = app.get(WINSTON_MODULE_NEST_PROVIDER);
 
   const seeder = app.get(SeederService);
+
+  const profilesTotal = Number(process.env.PROFILES_TOTAL) || 40;
+  const friendsTotal = Number(process.env.PROFILES_TOTAL) || 10;
+
   try {
-    await seeder.seed(5, 3);
+    await seeder.seed(profilesTotal, friendsTotal);
     logger.log('Seeder script completed successfully.');
   } catch (error) {
     logger.error(error);
