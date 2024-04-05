@@ -31,3 +31,6 @@
 <code>http:/localhost:5000/api/v1/docs</code>(local)
 
 #### ! Env files specially added to the repo (you just need to set your own PostgresDB)
+
+
+##### GoogleDoc: https://docs.google.com/document/d/1lDUTozjR_WmCyBJk2oQYvnM92b9ZKDgBlmZja9NNZ80/edit?usp=sharing
