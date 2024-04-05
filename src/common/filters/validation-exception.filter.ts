@@ -39,7 +39,6 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     this.logger.error(exception);
 
     if (exception instanceof QueryFailedError) {
-      // вынести обработку ошибок бд
       if (exception.driverError.code === PostgresErrorCodes.UniqueViolation) {
         const fieldName = DatabaseErrorMessageParser.parseMessage(exception);
         jsonResponse.message = `${fieldName}: ${ErrorMessages.DUPLICATE_VALUE}`;
